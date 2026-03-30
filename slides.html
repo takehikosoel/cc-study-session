@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 勉強会 - インフルエンサー図鑑をClaude Codeで作ろう</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+  }
+
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Slide 1: Title */
+  .slide-title {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  .slide-title::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(211,161,98,0.15) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    border-radius: 50%;
+  }
+  .slide-title .logo {
+    width: 120px; height: 120px;
+    background: linear-gradient(135deg, #d3a162, #e8c587);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 56px; font-weight: 900; color: #1a1a2e;
+    margin-bottom: 40px;
+    box-shadow: 0 20px 60px rgba(211,161,98,0.3);
+  }
+  .slide-title h1 {
+    font-size: 56px; font-weight: 900;
+    background: linear-gradient(135deg, #d3a162, #f0d8a8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align: center; margin-bottom: 16px;
+  }
+  .slide-title .subtitle {
+    font-size: 22px; color: #8899aa;
+    text-align: center; margin-bottom: 40px;
+  }
+  .slide-title .badge {
+    display: inline-block;
+    background: rgba(211,161,98,0.15);
+    border: 1px solid rgba(211,161,98,0.3);
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-size: 16px; color: #d3a162;
+  }
+
+  /* What slide */
+  .slide-what {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+  }
+  .slide-what .content { max-width: 900px; width: 100%; }
+  .slide-what h2 {
+    font-size: 42px; font-weight: 900; margin-bottom: 40px;
+    color: #f0d8a8; text-align: center;
+  }
+  .what-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  .what-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 36px;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+  .what-card:hover { transform: translateY(-4px); }
+  .what-card .icon {
+    font-size: 48px; margin-bottom: 16px;
+    display: block;
+  }
+  .what-card h3 { font-size: 20px; color: #d3a162; margin-bottom: 10px; }
+  .what-card p { font-size: 16px; color: #99aabb; line-height: 1.7; }
+
+  .comparison-box {
+    margin-top: 40px;
+    background: rgba(211,161,98,0.08);
+    border: 1px solid rgba(211,161,98,0.2);
+    border-radius: 16px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    justify-content: center;
+  }
+  .comparison-box .arrow { font-size: 32px; color: #d3a162; }
+  .comparison-item {
+    text-align: center;
+  }
+  .comparison-item .icon { font-size: 40px; display: block; margin-bottom: 8px; }
+  .comparison-item .label { font-size: 14px; color: #8899aa; }
+  .comparison-item .name { font-size: 18px; font-weight: 700; color: #e0e0e0; }
+
+  /* Step slides */
+  .slide-step {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+  }
+  .slide-step .content { max-width: 960px; width: 100%; }
+
+  .step-header {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 40px;
+  }
+  .step-number {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #d3a162, #e8c587);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: #1a1a2e;
+    flex-shrink: 0;
+  }
+  .step-header h2 {
+    font-size: 36px; font-weight: 900; color: #f0d8a8;
+  }
+  .step-desc {
+    font-size: 18px; color: #8899aa; margin-top: 4px;
+  }
+
+  .terminal-box {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .terminal-header {
+    background: #161b22;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .terminal-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .terminal-dot.red { background: #ff5f57; }
+  .terminal-dot.yellow { background: #febc2e; }
+  .terminal-dot.green { background: #28c840; }
+  .terminal-header .title {
+    margin-left: 8px; font-size: 13px; color: #6e7681;
+  }
+  .terminal-body {
+    padding: 20px 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 15px;
+    line-height: 2;
+  }
+  .terminal-body .prompt { color: #7ee787; }
+  .terminal-body .command { color: #e0e0e0; }
+  .terminal-body .comment { color: #6e7681; font-style: italic; }
+  .terminal-body .output { color: #58a6ff; }
+
+  .info-box {
+    background: rgba(88,166,255,0.08);
+    border-left: 4px solid #58a6ff;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .info-box .info-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .info-box p { font-size: 15px; color: #99aabb; line-height: 1.6; }
+
+  .warn-box {
+    background: rgba(254,188,46,0.08);
+    border-left: 4px solid #febc2e;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .warn-box .warn-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .warn-box p { font-size: 15px; color: #99aabb; line-height: 1.6; }
+
+  .success-box {
+    background: rgba(40,200,64,0.08);
+    border-left: 4px solid #28c840;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .success-box .success-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .success-box p { font-size: 15px; color: #99aabb; line-height: 1.6; }
+
+  /* Visual diagram */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+  .flow-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 20px 24px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .flow-item .icon { font-size: 36px; display: block; margin-bottom: 8px; }
+  .flow-item .label { font-size: 14px; color: #d3a162; font-weight: 700; }
+  .flow-item .sub { font-size: 12px; color: #6e7681; margin-top: 4px; }
+  .flow-arrow { font-size: 28px; color: #d3a162; }
+
+  /* Login table */
+  .login-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin: 20px 0;
+  }
+  .login-table td {
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.04);
+    font-size: 16px;
+  }
+  .login-table tr td:first-child {
+    border-radius: 12px 0 0 12px;
+    font-weight: 700;
+    color: #d3a162;
+    width: 220px;
+    text-align: center;
+    font-size: 16px;
+  }
+  .login-table tr td:last-child {
+    border-radius: 0 12px 12px 0;
+    color: #99aabb;
+  }
+  .login-table .recommended {
+    background: rgba(211,161,98,0.12);
+    border: 1px solid rgba(211,161,98,0.25);
+  }
+  .rec-badge {
+    display: inline-block;
+    background: #d3a162;
+    color: #1a1a2e;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Tips slide */
+  .slide-tips {
+    background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+  }
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 900px;
+    margin-top: 30px;
+  }
+  .tip-card {
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .tip-card.do {
+    background: rgba(40,200,64,0.06);
+    border: 1px solid rgba(40,200,64,0.2);
+  }
+  .tip-card.dont {
+    background: rgba(255,95,87,0.06);
+    border: 1px solid rgba(255,95,87,0.2);
+  }
+  .tip-card h3 {
+    font-size: 20px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tip-card.do h3 { color: #28c840; }
+  .tip-card.dont h3 { color: #ff5f57; }
+  .tip-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .tip-card li {
+    padding: 8px 0;
+    font-size: 15px;
+    color: #99aabb;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.6;
+  }
+  .tip-card li::before {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tip-card.do li::before { content: '\2713'; color: #28c840; font-weight: 700; }
+  .tip-card.dont li::before { content: '\2717'; color: #ff5f57; font-weight: 700; }
+
+  /* Troubleshooting */
+  .trouble-list {
+    max-width: 900px;
+    width: 100%;
+    margin-top: 30px;
+  }
+  .trouble-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .trouble-icon {
+    font-size: 28px; flex-shrink: 0; margin-top: 4px;
+  }
+  .trouble-item .symptom {
+    font-size: 16px; font-weight: 700; color: #ff5f57;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    margin-bottom: 6px;
+  }
+  .trouble-item .fix {
+    font-size: 15px; color: #99aabb; line-height: 1.6;
+  }
+
+  /* Divider */
+  .slide-divider {
+    width: 80px; height: 4px;
+    background: linear-gradient(90deg, #d3a162, #e8c587);
+    border-radius: 2px;
+    margin: 20px 0;
+  }
+
+  /* Page number */
+  .page-num {
+    position: absolute;
+    bottom: 30px;
+    right: 40px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.2);
+    font-weight: 700;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1a; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+  /* Print / PDF */
+  @media print {
+    .slide { page-break-after: always; }
+  }
+
+  /* Section title style */
+  .section-title {
+    font-size: 42px; font-weight: 900; color: #f0d8a8;
+    text-align: center; margin-bottom: 12px;
+  }
+  .section-subtitle {
+    font-size: 18px; color: #8899aa;
+    text-align: center; margin-bottom: 30px;
+  }
+
+  /* Code inline */
+  code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+    color: #d3a162;
+  }
+
+  /* Quote box */
+  .quote-box {
+    background: rgba(211,161,98,0.06);
+    border-left: 4px solid #d3a162;
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-size: 15px;
+    color: #d3a162;
+    line-height: 1.8;
+    font-style: italic;
+  }
+  .quote-box .author {
+    display: block;
+    margin-top: 8px;
+    font-style: normal;
+    font-size: 13px;
+    color: #8899aa;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Slide 1: Title ==================== -->
+<div class="slide slide-title">
+  <div class="logo">C_</div>
+  <h1>インフルエンサー図鑑を<br>Claude Codeで作ろう</h1>
+  <p class="subtitle">非エンジニアのためのClaude Code実践ガイド</p>
+  <div class="badge">所要時間：約2時間 ｜ 前提：Claude Codeセットアップ済み ｜ 2026.03.30</div>
+  <span class="page-num">1 / 35</span>
+</div>
+
+<!-- ==================== Slide 2: なぜ今Claude Codeを学ぶのか ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">なぜ今Claude Codeを学ぶのか</h2>
+    <p class="section-subtitle">AIと人間、それぞれの得意なこと</p>
+
+    <table class="login-table">
+      <tr>
+        <td style="color:#58a6ff; font-size:14px;">AIが得意（Claude Codeに任せる）</td>
+        <td style="color:#28c840; font-size:14px; font-weight:700;">人間が得意（あなたがやること）</td>
+      </tr>
+      <tr>
+        <td>要件書から設計・コードを生成する</td>
+        <td>「何を作るか」を決める（要件・判断）</td>
+      </tr>
+      <tr>
+        <td>大量のファイルを一括で作成・編集する</td>
+        <td>「これでいいか」を確認する（レビュー・承認）</td>
+      </tr>
+      <tr>
+        <td>定型作業の自動化（データ整理、CSV出力等）</td>
+        <td>業務知識を伝える（ドメイン知識）</td>
+      </tr>
+      <tr>
+        <td>既存コードを読んで構造を把握する</td>
+        <td>使い方のルールを決める（セキュリティ・運用方針）</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>今日は<strong>「あなたが要件を出して、Claude Codeが設計・実装する」</strong>という役割分担を体験します。</p>
+    </div>
+  </div>
+  <span class="page-num">2 / 35</span>
+</div>
+
+<!-- ==================== Slide 3: 世界の事例 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">世界ではどう使われているか</h2>
+    <p class="section-subtitle">Claude Codeは「コードを書くツール」ではない。業務全般に使われ始めている</p>
+
+    <div class="what-grid">
+      <div class="what-card">
+        <span class="icon">&#x1F4B0;</span>
+        <h3>経費精算を30分&#x2192;5分に</h3>
+        <p>「今月の経費精算やって」と話しかけるだけ。MoneyForward CSV解析&#x2192;Gmail領収書検索&#x2192;科目自動マッピング<span style="display:block; margin-top:6px; font-size:13px; color:#6e7681;">-- minorun365氏</span></p>
+      </div>
+      <div class="what-card">
+        <span class="icon">&#x1F4CB;</span>
+        <h3>PMの日常業務</h3>
+        <p>PRD作成をClaude Codeと壁打ち。会議メモ整理、データ分析、競合調査。エンジニアでなくても開発参加可能に</p>
+      </div>
+      <div class="what-card">
+        <span class="icon">&#x1F3E2;</span>
+        <h3>全エンジニアへの導入（カンリー社）</h3>
+        <p>全エンジニアにClaude Codeを導入。個人の工夫をチーム資産に（Skills・ルールの標準化）</p>
+      </div>
+      <div class="what-card">
+        <span class="icon">&#x1F680;</span>
+        <h3>私たちの事例</h3>
+        <p>BtoBマーケ自動化、Instagram月次報告書の自動生成、Discord経由でスマホからClaude Code操作</p>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      「これをやっていない組織との生産性の差がつきすぎて、変化に適応できない組織はあと数ヶ月もすると一瞬で社会から置いていかれる」
+      <span class="author">-- minorun365</span>
+    </div>
+  </div>
+  <span class="page-num">3 / 35</span>
+</div>
+
+<!-- ==================== Slide 4: Step1 ディレクトリを作る ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div>
+        <h2>作業場所を作って、Claude Codeを起動</h2>
+        <p class="step-desc">ディレクトリ = フォルダ。ターミナルで文字で操作します</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">ターミナル</span>
+      </div>
+      <div class="terminal-body">
+        <span class="comment"># デスクトップにフォルダを作成</span><br>
+        <span class="prompt">$ </span><span class="command">mkdir ~/Desktop/influencer-db</span><br><br>
+        <span class="comment"># そのフォルダに移動</span><br>
+        <span class="prompt">$ </span><span class="command">cd ~/Desktop/influencer-db</span><br><br>
+        <span class="comment"># Git（変更履歴の記録）を初期化</span><br>
+        <span class="prompt">$ </span><span class="command">git init</span><br><br>
+        <span class="comment"># Claude Codeを起動</span><br>
+        <span class="prompt">$ </span><span class="command">claude</span><br>
+        <span class="output">&gt; ← これが出たら起動成功!</span>
+      </div>
+    </div>
+
+    <table class="login-table">
+      <tr>
+        <td>mkdir</td>
+        <td>デスクトップにフォルダを作った &#x2192; Finderで「右クリック&#x2192;新規フォルダ」と同じ</td>
+      </tr>
+      <tr>
+        <td>cd</td>
+        <td>そのフォルダに移動した &#x2192; Finderで「フォルダをダブルクリック」と同じ</td>
+      </tr>
+      <tr>
+        <td>git init</td>
+        <td>変更履歴の記録を開始 &#x2192; Finderにはない機能。「いつ誰が何を変えたか」を記録する仕組み</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>「このフォルダの中身を教えて」と入力してみてください。まだ空っぽですが、これからClaude Codeと一緒にファイルを作っていきます。</p>
+    </div>
+  </div>
+  <span class="page-num">4 / 35</span>
+</div>
+
+<!-- ==================== Slide 5: Claude Codeとは ==================== -->
+<div class="slide slide-what">
+  <div class="content">
+    <h2>そもそもClaude Codeって？</h2>
+
+    <div class="comparison-box">
+      <div class="comparison-item">
+        <span class="icon">&#x1F310;</span>
+        <div class="name">ChatGPT / Claude.ai</div>
+        <div class="label">ブラウザで質問&#x2192;テキストが返る</div>
+      </div>
+      <div class="arrow">&#x2192;</div>
+      <div class="comparison-item">
+        <span class="icon">&#x2B1B;</span>
+        <div class="name">Claude Code</div>
+        <div class="label">ターミナルでファイルを直接操作</div>
+      </div>
+    </div>
+
+    <table class="login-table" style="margin-top:30px;">
+      <tr>
+        <td></td>
+        <td style="font-weight:700; color:#8899aa;">ChatGPT / Claude.ai</td>
+        <td style="font-weight:700; color:#d3a162;">Claude Code</td>
+      </tr>
+      <tr>
+        <td>どこで使う</td>
+        <td>ブラウザ</td>
+        <td>ターミナル（今開いている画面）</td>
+      </tr>
+      <tr>
+        <td>AIの役割</td>
+        <td>質問に答える</td>
+        <td>実際にファイルを作って操作する</td>
+      </tr>
+      <tr>
+        <td>例えるなら</td>
+        <td>電話相談</td>
+        <td>隣に座ってPC操作してくれる同僚</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>回答をコピペして自分で作業する時代は終わりました。Claude Codeは<strong>あなたのPC上で実際にファイルを作り、コードを書き、コマンドを実行してくれる</strong>AIです。</p>
+    </div>
+  </div>
+  <span class="page-num">5 / 35</span>
+</div>
+
+<!-- ==================== Slide 6: 必須コマンド5つ ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">覚えておくコマンド5つ</h2>
+    <p class="section-subtitle">今は覚えなくて大丈夫。必要なタイミングで都度案内します</p>
+
+    <table class="login-table">
+      <tr class="recommended">
+        <td><code>Esc</code></td>
+        <td><strong>Claude Codeを止めたいとき</strong><br>処理の途中で止められます</td>
+      </tr>
+      <tr>
+        <td><code>Esc</code> x2</td>
+        <td><strong>やり直したいとき（巻き戻し）</strong><br>直前の操作をなかったことにできます</td>
+      </tr>
+      <tr>
+        <td><code>/clear</code></td>
+        <td><strong>新しい作業に入るとき</strong><br>会話をリセット。今日一番使います</td>
+      </tr>
+      <tr>
+        <td><code>/context</code></td>
+        <td><strong>記憶容量の使用状況を確認</strong><br>60%を超えたら /clear の合図</td>
+      </tr>
+      <tr>
+        <td><code>/plan</code></td>
+        <td><strong>調査だけしたいとき</strong><br>読み取り専用モード。設計・調査に使う</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>この5つだけで作業の90%をカバーできます。困ったらまず <code>Esc</code> で止めましょう。</p>
+    </div>
+  </div>
+  <span class="page-num">6 / 35</span>
+</div>
+
+<!-- ==================== Slide 7: CLAUDE.md作成 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div>
+        <h2>プロジェクトの説明書を作ろう</h2>
+        <p class="step-desc">Claude Codeに「何を作るか」を伝える</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+        <span class="command">以下の内容でCLAUDE.mdを作成してください。</span><br><br>
+        <span class="comment"># Influencer Database</span><br>
+        <span class="comment">## Goal</span><br>
+        <span class="output">社内で使うインフルエンサーデータベース。</span><br>
+        <span class="output">インフルエンサー情報を会社として一元管理し、</span><br>
+        <span class="output">担当者個人に依存しがちなキャスティング・進行・支払い管理をチームで見える化する。</span><br><br>
+        <span class="comment">## Tech Stack</span><br>
+        <span class="output">- Python 3.11+ / SQLite（ローカルDB）</span><br>
+        <span class="output">- 日本語UIのWebアプリ / CSVインポート・エクスポート対応</span><br><br>
+        <span class="comment">## Rules</span><br>
+        <span class="output">- 機密情報は .env で管理（コードにハードコードしない）</span><br>
+        <span class="output">- 個人情報を扱うため表示制御を考慮する</span>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p><strong>許可画面が出たら <code>y</code> を押してください。</strong>これがClaude Codeの安全設計です。ファイルを作る前に必ず確認してきます。<br><strong>Tips:</strong> Tabキーを押すと追加指示を入力できます。</p>
+    </div>
+  </div>
+  <span class="page-num">7 / 35</span>
+</div>
+
+<!-- ==================== Slide 8: CLAUDE.mdの書き方ルール ==================== -->
+<div class="slide slide-tips">
+  <div style="text-align:center;">
+    <h2 style="font-size:42px;font-weight:900;color:#f0d8a8;margin-bottom:8px;">CLAUDE.md の書き方ルール</h2>
+    <p style="font-size:18px;color:#8899aa;">Claude Codeは毎回起動時にこのファイルを最初に読む。新しい人への引き継ぎメモ</p>
+  </div>
+  <div class="tips-grid">
+    <div class="tip-card do">
+      <h3>&#x2705; やること</h3>
+      <ul>
+        <li><strong>50行以内</strong>に収める</li>
+        <li><strong>Goal / Tech Stack / Directory / Rules</strong> の4セクションが基本</li>
+        <li>毎回説明しなくて済むことを書く</li>
+        <li>実際の運用プロジェクトを参考にする（35行がお手本）</li>
+      </ul>
+    </div>
+    <div class="tip-card dont">
+      <h3>&#x274C; やらないこと</h3>
+      <ul>
+        <li>長すぎるCLAUDE.md（重要なルールを見落とす）</li>
+        <li>コードを見ればわかることを書く</li>
+        <li>全部のルールをCLAUDE.mdに詰め込む</li>
+        <li>抽象的すぎる記述（「いい感じにして」）</li>
+      </ul>
+    </div>
+  </div>
+  <span class="page-num">8 / 35</span>
+</div>
+
+<!-- ==================== Slide 9: rules/分割管理 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">CLAUDE.mdが大きくなったら？</h2>
+    <p class="section-subtitle">rules/ にトピックごとに分割。paths指定で必要なときだけ読み込み</p>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">ディレクトリ構成</span>
+      </div>
+      <div class="terminal-body" style="font-size:14px; line-height:1.8;">
+        <span class="output">.claude/rules/</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; coding-style.md</span><span class="comment">      # コーディング規約</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; testing.md</span><span class="comment">            # テスト方針</span><br>
+        <span class="output">&#x2514;&#x2500;&#x2500; api-design.md</span><span class="comment">         # API設計ルール</span><br><br>
+        <span class="output">~/.claude/</span><span class="comment">                       # 全プロジェクト共通</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; rules/</span><br>
+        <span class="output">&#x2502;   &#x251C;&#x2500;&#x2500; development.md</span><span class="comment">    # 開発の進め方</span><br>
+        <span class="output">&#x2502;   &#x2514;&#x2500;&#x2500; security.md</span><span class="comment">       # セキュリティルール</span><br>
+        <span class="output">&#x2514;&#x2500;&#x2500; skills/</span><span class="comment">                  # グローバルSkills</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p><code>paths</code> を指定すると、該当ファイルを操作するときだけルールが読み込まれます。<strong>記憶容量の節約</strong>になります。</p>
+    </div>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>プロジェクト固有のルールは <code>.claude/rules/</code> に、全プロジェクト共通は <code>~/.claude/rules/</code> に置く。この2層構造がベスト。</p>
+    </div>
+  </div>
+  <span class="page-num">9 / 35</span>
+</div>
+
+<!-- ==================== Slide 10: 安全設定 settings.json ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div>
+        <h2>安全設定をしよう</h2>
+        <p class="step-desc">Claude Codeは実際にファイル削除やコマンド実行ができる。だから制限が必要</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+        <span class="command">以下の2つを作成してください。</span><br><br>
+        <span class="comment"># 1. .claude/settings.json:</span><br>
+        <span class="output">{</span><br>
+        <span class="output">&nbsp;&nbsp;"permissions": {</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;"deny": [</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Bash(rm -rf *)",</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Bash(git push --force *)",</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Read(./.env)",</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Read(./.env.*)"</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;]</span><br>
+        <span class="output">&nbsp;&nbsp;}</span><br>
+        <span class="output">}</span><br><br>
+        <span class="comment"># 2. .gitignore に追加:</span><br>
+        <span class="output">.env / .env.* / *.pem / *.key</span>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>ChatGPTと違って、Claude Codeは<strong>実際にファイルを削除したりコマンドを実行したりします</strong>。便利な反面、誤操作のリスクあり。だから「やっていいこと / ダメなこと」を最初に設定します。</p>
+    </div>
+  </div>
+  <span class="page-num">10 / 35</span>
+</div>
+
+<!-- ==================== Slide 11: .envファイルの仕組み ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">.envファイルって何？</h2>
+    <p class="section-subtitle">APIキー等の秘密情報を保管する「金庫」</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+      <div class="terminal-box" style="margin-bottom:0;">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="title" style="color:#ff5f57;">BAD - 絶対ダメ</span>
+        </div>
+        <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+          <span class="comment"># コードに直接書く</span><br>
+          <span class="command">api_key = "sk-abc123xyz"</span><br><br>
+          <span style="color:#ff5f57;">&#x2192; GitHubに上げた瞬間</span><br>
+          <span style="color:#ff5f57;">&nbsp;&nbsp;世界中に公開される</span>
+        </div>
+      </div>
+      <div class="terminal-box" style="margin-bottom:0;">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="title" style="color:#28c840;">GOOD - 正しいやり方</span>
+        </div>
+        <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+          <span class="comment"># .envファイル（Gitに上げない）</span><br>
+          <span class="command">API_KEY=sk-abc123xyz</span><br><br>
+          <span class="comment"># コード本体には：</span><br>
+          <span class="command">api_key = os.getenv("API_KEY")</span><br>
+          <span style="color:#28c840;">&#x2192; 「金庫から取れ」とだけ書く</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p><strong>例え話：</strong> .envは金庫。コードには「金庫を開けろ」とだけ書く。鍵（APIキー）をコードに直接書くのは、パスワードを付箋に書いてモニターに貼るのと同じ。</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>Claude Codeに.envを読ませると<strong>会話履歴に秘密情報が残ります</strong>。だから <code>settings.json</code> で <code>Read(./.env)</code> を禁止して物理的にブロックしています。</p>
+    </div>
+  </div>
+  <span class="page-num">11 / 35</span>
+</div>
+
+<!-- ==================== Slide 12: 各設定の理由 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">各設定の理由</h2>
+    <p class="section-subtitle">なぜこの設定が必要なのか</p>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">何を禁止</td>
+        <td style="font-weight:700; color:#8899aa;">なぜ？</td>
+      </tr>
+      <tr>
+        <td><code>.env</code> の読み取り</td>
+        <td>会話履歴に秘密情報が残る</td>
+      </tr>
+      <tr>
+        <td><code>rm -rf *</code></td>
+        <td>ファイル一括削除。<strong>元に戻せない</strong></td>
+      </tr>
+      <tr>
+        <td><code>git push --force *</code></td>
+        <td>チームの作業履歴を上書き。<strong>全員の作業が消える</strong></td>
+      </tr>
+      <tr>
+        <td><code>.gitignore</code> に <code>.env</code></td>
+        <td>GitHubに絶対上がらないようにする</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>設定は<strong>1分で終わるが、事故を防ぐ効果は絶大</strong>。最初にやるから意味がある。</p>
+    </div>
+  </div>
+  <span class="page-num">12 / 35</span>
+</div>
+
+<!-- ==================== Slide 13: 3層防御 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">3層の安全設計</h2>
+    <p class="section-subtitle">「1つが抜けても他で止まる」設計</p>
+
+    <div class="flow-diagram">
+      <div class="flow-item" style="border-color:rgba(211,161,98,0.4);">
+        <span class="icon">&#x1F6E1;&#xFE0F;</span>
+        <div class="label">第1層</div>
+        <div class="sub" style="font-size:14px; color:#e0e0e0; margin-top:8px;">settings.json の禁止リスト</div>
+        <div class="sub">物理的にブロック</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(211,161,98,0.4);">
+        <span class="icon">&#x1F4D6;</span>
+        <div class="label">第2層</div>
+        <div class="sub" style="font-size:14px; color:#e0e0e0; margin-top:8px;">ルールファイル（rules/）</div>
+        <div class="sub">危険な操作を提案しなくなる</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(211,161,98,0.4);">
+        <span class="icon">&#x1F464;</span>
+        <div class="label">第3層</div>
+        <div class="sub" style="font-size:14px; color:#e0e0e0; margin-top:8px;">許可ダイアログ（y/n）</div>
+        <div class="sub">最後の砦。あなたが判断する</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>セキュリティは「多層防御」が基本。1つの層だけに頼らず、<strong>3つの層で守る</strong>ことで安全性が飛躍的に高まります。</p>
+    </div>
+  </div>
+  <span class="page-num">13 / 35</span>
+</div>
+
+<!-- ==================== Slide 14: Plan Modeで要件定義 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div>
+        <h2>どんなデータベースにするか設計しよう</h2>
+        <p class="step-desc">いきなり作らない。まず /plan で設計する</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">/plan と入力してPlan Modeに入ってから、以下を貼り付け</span>
+      </div>
+      <div class="terminal-body" style="font-size:12px; line-height:1.7;">
+        <span class="command">以下の要件でインフルエンサーDBを設計してください。</span><br>
+        <span class="command">いきなり実装せず、まず設計を提案してください。</span><br><br>
+        <span class="output">&#x25A0; 目的: インフルエンサー情報の一元管理</span><br>
+        <span class="output">&#x25A0; 設計思想: 「インフルエンサー個人ベース」で蓄積</span><br>
+        <span class="output">&#x25A0; 機能: インフルエンサー管理 / 案件管理 / 支払い管理 / ナレッジ管理 / 権限管理</span><br>
+        <span class="output">&#x25A0; 技術: サーバー上WebApp / 日本語UI / SQLite / CSV対応</span><br><br>
+        <span class="comment"># 提案してほしいこと：</span><br>
+        <span class="output">1. 技術構成 / 2. DB設計 / 3. 画面構成 / 4. 開発ステップ</span><br>
+        <span class="output">コードは書かないでください。設計だけ出してください。</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>非エンジニアでも<strong>「やりたいこと」を日本語で書ければ、Claude Codeが技術設計に翻訳</strong>してくれます。要件書をそのまま渡すだけでOK。</p>
+    </div>
+  </div>
+  <span class="page-num">14 / 35</span>
+</div>
+
+<!-- ==================== Slide 15: PSBフレームワーク ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">なぜ「まず設計」なのか -- PSBフレームワーク</h2>
+    <p class="section-subtitle">「直接コーディングにジャンプさせると、間違った問題を解決するコードが生成される」 -- 公式ベストプラクティス</p>
+
+    <div class="flow-diagram">
+      <div class="flow-item" style="border-color:rgba(88,166,255,0.4); min-width:200px;">
+        <span class="icon">&#x1F4DD;</span>
+        <div class="label">Plan（設計）</div>
+        <div class="sub" style="font-size:13px; color:#99aabb; margin-top:8px;">今やっているところ（Step 4）</div>
+        <div class="sub">いきなり作ると間違った方向に走る</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(254,188,46,0.4); min-width:200px;">
+        <span class="icon">&#x2699;&#xFE0F;</span>
+        <div class="label">Setup（準備）</div>
+        <div class="sub" style="font-size:13px; color:#99aabb; margin-top:8px;">CLAUDE.md + 安全設定（Step 2-3）</div>
+        <div class="sub">最初の手間が後で何倍にもなって返る</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(40,200,64,0.4); min-width:200px;">
+        <span class="icon">&#x1F528;</span>
+        <div class="label">Build（実装）</div>
+        <div class="sub" style="font-size:13px; color:#99aabb; margin-top:8px;">この後やる（Step 6-7）</div>
+        <div class="sub">設計通りに作る</div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>いきなり「作って」と頼むと、Claude Codeは<strong>間違った方向に全力で走る</strong>ことがあります。PSBの順序を守りましょう。</p>
+    </div>
+  </div>
+  <span class="page-num">15 / 35</span>
+</div>
+
+<!-- ==================== Slide 16: Plan Mode承認画面 + 3つのモード ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">Plan Mode承認画面と3つのモード</h2>
+    <p class="section-subtitle">設計が出たら承認。「Yes, clear context...」がおすすめ</p>
+
+    <table class="login-table">
+      <tr class="recommended">
+        <td>Yes, clear context... <span class="rec-badge">推奨</span></td>
+        <td>調査で溜まった情報をクリアして、<strong>計画だけ残して実行</strong></td>
+      </tr>
+      <tr>
+        <td>Yes, auto-accept edits</td>
+        <td>そのまま実行</td>
+      </tr>
+      <tr>
+        <td>Yes, manually approve</td>
+        <td>一つずつ確認しながら</td>
+      </tr>
+    </table>
+
+    <div class="slide-divider" style="margin: 20px auto;"></div>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">モード</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">操作</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">何ができる</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">いつ使う</td>
+      </tr>
+      <tr>
+        <td>通常モード</td>
+        <td>そのまま起動</td>
+        <td>読み書き両方</td>
+        <td>普段使い</td>
+      </tr>
+      <tr>
+        <td>Plan Mode</td>
+        <td><code>/plan</code></td>
+        <td>読み取りだけ</td>
+        <td>設計・調査</td>
+      </tr>
+      <tr>
+        <td>Auto Mode</td>
+        <td>設定で切替</td>
+        <td>自動で進む</td>
+        <td>信頼できるタスクを一気に</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>設計段階でClaude Codeが大量のファイルを読み込みますが、実装時にはこれがノイズに。<strong>「clear context」で計画だけ残してクリーンに</strong>します。</p>
+    </div>
+  </div>
+  <span class="page-num">16 / 35</span>
+</div>
+
+<!-- ==================== Slide 17: コンテキスト管理 + Document & Clear ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">5</div>
+      <div>
+        <h2>記憶をリセットして実装に備えよう</h2>
+        <p class="step-desc">Claude Codeの「記憶容量」を管理する -- 最も重要なテクニック</p>
+      </div>
+    </div>
+
+    <div class="flow-diagram">
+      <div class="flow-item">
+        <span class="icon">&#x1F4DD;</span>
+        <div class="label">1. 進捗を記録</div>
+        <div class="sub">progress.md に書き出し</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(211,161,98,0.4);">
+        <span class="icon">&#x1F504;</span>
+        <div class="label">2. /clear</div>
+        <div class="sub">記憶をリセット</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item">
+        <span class="icon">&#x1F4C4;</span>
+        <div class="label">3. @progress.md</div>
+        <div class="sub">読み返してから作業再開</div>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">/clear する前に入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+        <span class="command">ここまでの進捗と決定事項を progress.md に書き出してください。</span><br>
+        <span class="command">次のセッションで読み返せるように、何を作ったか・何が決まったかをまとめてください。</span>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>会話が長くなると<strong>初期の指示を忘れたり、間違いが増えます</strong>。95%を超えると自動圧縮されて「&#x25CB;&#x25CB;しないで」という禁止事項が消えることも。<strong>これが「Document &amp; Clear」</strong>です。</p>
+    </div>
+  </div>
+  <span class="page-num">17 / 35</span>
+</div>
+
+<!-- ==================== Slide 18: 管理テクニック5つ ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">コンテキスト管理テクニック</h2>
+    <p class="section-subtitle">今日のルール：各ステップの間で「記録 &#x2192; /clear」します</p>
+
+    <table class="login-table">
+      <tr class="recommended">
+        <td><code>/clear</code> <span class="rec-badge">最重要</span></td>
+        <td><strong>新しい作業に入るとき</strong>に実行。話題が変わったら即リセット</td>
+      </tr>
+      <tr>
+        <td><code>/context</code></td>
+        <td>記憶容量の使用状況を確認。<strong>60%を超えたら /clear の合図</strong></td>
+      </tr>
+      <tr>
+        <td>Document &amp; Clear</td>
+        <td>長い作業の途中で<strong>進捗をファイルに書き出してから /clear</strong></td>
+      </tr>
+      <tr>
+        <td><code>@ファイル名</code></td>
+        <td>前回の記録を読み込んで作業を引き継ぐ</td>
+      </tr>
+      <tr>
+        <td><code>/rename</code></td>
+        <td>セッションに名前をつける。<code>--resume</code> で再開できる</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p><strong>「記録 &#x2192; リセット &#x2192; 読み込み &#x2192; 作業」</strong>のサイクルを回す。これがClaude Codeを安定して使うコツです。</p>
+    </div>
+  </div>
+  <span class="page-num">18 / 35</span>
+</div>
+
+<!-- ==================== Slide 19: 実装指示 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">6</div>
+      <div>
+        <h2>インフルエンサー図鑑を実装しよう</h2>
+        <p class="step-desc">/clear してから実装開始</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:13px; line-height:1.7;">
+        <span class="command">CLAUDE.md を読んでから、Step 4で設計した内容に基づいて以下を実装してください：</span><br><br>
+        <span class="output">1. データベース定義（SQLiteのテーブル作成）</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;- influencers / projects / payments / knowledge / users テーブル</span><br>
+        <span class="output">2. models.py -- Pythonのデータモデル定義</span><br>
+        <span class="output">3. seed_data.py -- サンプルデータ投入スクリプト</span><br>
+        <span class="output">&nbsp;&nbsp;&nbsp;- インフルエンサー5人分、案件3件分、担当者2人分</span><br>
+        <span class="output">4. requirements.txt -- 依存パッケージ一覧</span><br>
+        <span class="output">5. README.md -- セットアップ手順・起動方法</span><br><br>
+        <span style="color:#ff5f57;">.envファイル自体は作成しないでください（秘密情報のため）</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>良い指示の3ポイント：<strong>(1)「CLAUDE.md を読んでから」</strong> &#x2192; 説明書を確認してから作業。<strong>(2)「.envは作成しない」</strong> &#x2192; 安全ルールを明示。<strong>(3) ファイル名と中身を具体的に</strong> &#x2192; 「いい感じに」ではなく明確に。</p>
+    </div>
+  </div>
+  <span class="page-num">19 / 35</span>
+</div>
+
+<!-- ==================== Slide 20: APIとは ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">APIとは？</h2>
+    <p class="section-subtitle">あるサービスの機能を、外部のプログラムから利用するための窓口</p>
+
+    <div class="comparison-box" style="margin-top:10px; margin-bottom:30px;">
+      <div class="comparison-item">
+        <span class="icon">&#x1F9D1;</span>
+        <div class="name">お客さん</div>
+        <div class="label">（プログラム）</div>
+      </div>
+      <div class="arrow">&#x2192;</div>
+      <div class="comparison-item">
+        <span class="icon">&#x1F3EA;</span>
+        <div class="name">注文カウンター</div>
+        <div class="label">（API）</div>
+      </div>
+      <div class="arrow">&#x2192;</div>
+      <div class="comparison-item">
+        <span class="icon">&#x1F468;&#x200D;&#x1F373;</span>
+        <div class="name">厨房</div>
+        <div class="label">（サービス）</div>
+      </div>
+    </div>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">API</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">誰が提供</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">何ができる</td>
+      </tr>
+      <tr>
+        <td>Instagram Graph API</td>
+        <td>Meta社</td>
+        <td>フォロワー数、投稿データ、エンゲージメント率を取得</td>
+      </tr>
+      <tr>
+        <td>Claude API</td>
+        <td>Anthropic社</td>
+        <td>AIにテキスト生成・分析をさせる</td>
+      </tr>
+      <tr>
+        <td>Google Sheets API</td>
+        <td>Google</td>
+        <td>スプレッドシートの読み書き</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p><strong>APIキー</strong>はレストランの会員カード。「この人は利用許可がある」と証明する鍵。だから Step 3 で <code>.env</code> に保管し、コードに直接書かないようにした。</p>
+    </div>
+  </div>
+  <span class="page-num">20 / 35</span>
+</div>
+
+<!-- ==================== Slide 21: LLM APIの仕組み ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">LLM APIの仕組み</h2>
+    <p class="section-subtitle">Claude Code自体も裏でLLM APIを使っている</p>
+
+    <div class="flow-diagram">
+      <div class="flow-item">
+        <span class="icon">&#x1F9D1;</span>
+        <div class="label">あなた</div>
+        <div class="sub">日本語で指示</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(211,161,98,0.4);">
+        <span class="icon">&#x2B1B;</span>
+        <div class="label">Claude Code</div>
+        <div class="sub">ターミナル上</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item">
+        <span class="icon">&#x1F310;</span>
+        <div class="label">LLM API</div>
+        <div class="sub">リクエスト送信</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(40,200,64,0.4);">
+        <span class="icon">&#x1F9E0;</span>
+        <div class="label">Anthropic社のAIモデル</div>
+        <div class="sub">回答生成</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>あなたがClaude Codeに話しかけるたびに、裏でAnthropic社のAPIにリクエストが送られ、AIの回答が返ってきます。</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>これがStep 5で学んだ「記憶容量」と関係します。<strong>会話が長くなるとAPIに送るデータが増え、精度が下がる</strong>のです。だから <code>/clear</code> が重要。</p>
+    </div>
+  </div>
+  <span class="page-num">21 / 35</span>
+</div>
+
+<!-- ==================== Slide 22: API vs MCP ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">API vs MCP（もう一つの連携方法）</h2>
+    <p class="section-subtitle">Claude Codeには2つの外部連携方法がある</p>
+
+    <div class="comparison-box" style="margin-bottom:24px;">
+      <div class="comparison-item">
+        <span class="icon">&#x1F4DC;</span>
+        <div class="name">API</div>
+        <div class="label">レシピを書いてもらう<br>&#x2192;次から自分で作れる</div>
+      </div>
+      <div class="arrow">vs</div>
+      <div class="comparison-item">
+        <span class="icon">&#x1F50C;</span>
+        <div class="name">MCP</div>
+        <div class="label">専属シェフを雇う<br>&#x2192;帰ったら作れない</div>
+      </div>
+    </div>
+
+    <table class="login-table">
+      <tr>
+        <td></td>
+        <td style="font-weight:700; color:#58a6ff;">API</td>
+        <td style="font-weight:700; color:#d3a162;">MCP</td>
+      </tr>
+      <tr>
+        <td>何が起きる</td>
+        <td>コード（プログラム）が生成される</td>
+        <td>Claude Codeが外部サービスに直接アクセス</td>
+      </tr>
+      <tr>
+        <td>閉じたら？</td>
+        <td style="color:#28c840;">コードが残るから動き続ける</td>
+        <td style="color:#ff5f57;">終わり</td>
+      </tr>
+    </table>
+
+    <table class="login-table" style="margin-top:16px;">
+      <tr>
+        <td style="font-size:14px;">やりたいこと</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">どっち？</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">理由</td>
+      </tr>
+      <tr>
+        <td>インフルエンサー情報を毎日自動収集</td>
+        <td style="color:#58a6ff; font-weight:700;">API</td>
+        <td>一度コードを作れば毎日自動で動く</td>
+      </tr>
+      <tr>
+        <td>今すぐDBの中身を確認したい</td>
+        <td style="color:#d3a162; font-weight:700;">MCP</td>
+        <td>「見せて」で即回答</td>
+      </tr>
+      <tr>
+        <td>毎週メルマガ自動送信</td>
+        <td style="color:#58a6ff; font-weight:700;">API</td>
+        <td>Claude Codeなしで動き続ける</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>今回のプロジェクトでは<strong>API方式</strong>を使います。コードとして残るので、一度作ればClaude Codeなしでも動き続けます。</p>
+    </div>
+  </div>
+  <span class="page-num">22 / 35</span>
+</div>
+
+<!-- ==================== Slide 23: 検証 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">7</div>
+      <div>
+        <h2>ちゃんとできたか確認しよう</h2>
+        <p class="step-desc">/clear してから検証。「作って」で終わりにしない</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:14px; line-height:1.8;">
+        <span class="command">このプロジェクトを検証してください：</span><br><br>
+        <span class="output">1. CLAUDE.md の内容は正しいか</span><br>
+        <span class="output">2. .claude/settings.json に安全設定が入っているか</span><br>
+        <span class="output">3. データベースのテーブル定義は要件を満たしているか</span><br>
+        <span class="output">4. .env が .gitignore に入っているか</span><br>
+        <span class="output">5. README.md に起動手順が書かれているか</span><br><br>
+        <span class="command">問題があれば修正してください。</span>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      「Claude に自分の作業を検証する方法を与えることが、最も高いレバレッジ」
+      <span class="author">-- 公式ベストプラクティス</span>
+    </div>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p><strong>「作って」で終わりにせず、必ず「確認して」まで指示する</strong>のが公式推奨のベストプラクティスです。</p>
+    </div>
+  </div>
+  <span class="page-num">23 / 35</span>
+</div>
+
+<!-- ==================== Slide 24: Gitコミット ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">8</div>
+      <div>
+        <h2>Gitでコミットしよう</h2>
+        <p class="step-desc">変更を記録する。Git操作も日本語で頼める</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body">
+        <span class="command">ここまでの変更をGitにコミットしてください。</span><br>
+        <span class="command">コミットメッセージは日本語で、何を作ったかわかるようにしてください。</span>
+      </div>
+    </div>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">やりたいこと</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">Claude Codeへの指示</td>
+      </tr>
+      <tr>
+        <td>変更を記録する</td>
+        <td>「コミットして」</td>
+      </tr>
+      <tr>
+        <td>変更履歴を見る</td>
+        <td>「最近のコミット履歴を見せて」</td>
+      </tr>
+      <tr>
+        <td>ブランチを作る</td>
+        <td>「新しいブランチを作って」</td>
+      </tr>
+      <tr>
+        <td>前の状態に戻す</td>
+        <td>「直前のコミットに戻して」</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>Gitのコマンドを覚える必要はありません。<strong>日本語で頼めばClaude Codeがやってくれます。</strong></p>
+    </div>
+  </div>
+  <span class="page-num">24 / 35</span>
+</div>
+
+<!-- ==================== Slide 25: GitHub / SSH認証 / gh CLI ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">GitHubアカウント・SSH認証・gh CLI</h2>
+    <p class="section-subtitle">チームで共有するにはGitHubが必要</p>
+
+    <div class="flow-diagram">
+      <div class="flow-item">
+        <span class="icon">&#x1F310;</span>
+        <div class="label">1. GitHubアカウント作成</div>
+        <div class="sub">github.com でSign up</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item">
+        <span class="icon">&#x1F511;</span>
+        <div class="label">2. SSH鍵の作成・登録</div>
+        <div class="sub">ssh-keygen &#x2192; GitHub設定に登録</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item">
+        <span class="icon">&#x1F4E6;</span>
+        <div class="label">3. gh CLI インストール</div>
+        <div class="sub">brew install gh</div>
+      </div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-item" style="border-color:rgba(40,200,64,0.4);">
+        <span class="icon">&#x1F680;</span>
+        <div class="label">4. GitHubにプッシュ</div>
+        <div class="sub">Claude Codeに頼むだけ</div>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:14px; line-height:1.8;">
+        <span class="command">GitHubにリポジトリを作成して、プッシュしてください。</span><br>
+        <span class="command">リポジトリ名は influencer-db で、プライベートリポジトリにしてください。</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p><code>gh</code> がインストールされていれば、Claude Codeが<strong>リポジトリ作成からプッシュ、PR作成まで全部やってくれます</strong>。</p>
+    </div>
+  </div>
+  <span class="page-num">25 / 35</span>
+</div>
+
+<!-- ==================== Slide 26: サーバー起動 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">9</div>
+      <div>
+        <h2>サーバーを起動してみよう</h2>
+        <p class="step-desc">/clear してから。動かしてブラウザで確認</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">Claude Codeに以下を入力</span>
+      </div>
+      <div class="terminal-body" style="font-size:14px; line-height:1.8;">
+        <span class="command">このプロジェクトをローカルで起動できるようにしてください。</span><br>
+        <span class="output">- シンプルなWebサーバー（Flask or FastAPI）</span><br>
+        <span class="output">- トップページでインフルエンサー一覧が見れる</span><br>
+        <span class="output">- サンプルデータが表示される状態にする</span><br>
+        <span class="output">- 起動コマンドは README.md に追記</span><br><br>
+        <span class="command">まず何が必要か教えてください。</span>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">起動コマンド（Claude Codeが教えてくれます）</span>
+      </div>
+      <div class="terminal-body">
+        <span class="prompt">$ </span><span class="command">pip install -r requirements.txt</span><br>
+        <span class="prompt">$ </span><span class="command">python app.py</span><br>
+        <span class="output">&#x2192; http://localhost:5000 をブラウザで開く</span>
+      </div>
+    </div>
+
+    <div class="success-box">
+      <span class="success-icon">&#x1F389;</span>
+      <p>非エンジニアが、<strong>要件書からWebアプリを立ち上げるところまで2時間でできました。</strong></p>
+    </div>
+  </div>
+  <span class="page-num">26 / 35</span>
+</div>
+
+<!-- ==================== Slide 27: /insights の機能 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">10</div>
+      <div>
+        <h2>使い方を分析して、ショートカットを作ろう</h2>
+        <p class="step-desc">/insights で過去のセッションを分析して改善提案を自動生成</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">実行コマンド</span>
+      </div>
+      <div class="terminal-body">
+        <span class="prompt">&gt; </span><span class="command">/insights</span>
+      </div>
+    </div>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">提案の種類</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">何をしてくれる</td>
+      </tr>
+      <tr>
+        <td>CLAUDE.mdへの追加ルール</td>
+        <td>「こういうルールを追加するといいですよ」と具体的な文章で提案</td>
+      </tr>
+      <tr>
+        <td>Skills（ショートカット）</td>
+        <td>繰り返し使っている操作パターンを検出して「Skill化しましょう」と提案</td>
+      </tr>
+      <tr>
+        <td>Hooks</td>
+        <td>過去に起きた問題を防ぐための自動チェックを提案</td>
+      </tr>
+      <tr>
+        <td>MCPサーバー</td>
+        <td>作業内容に応じたツール連携を推奨</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>HTMLレポートが <code>~/.claude/usage-data/report.html</code> に生成されます。<strong>いきなりSkillを作らない。</strong>まず実際にタスクを成功させて、うまくいったアプローチをSkillに抽出する。</p>
+    </div>
+  </div>
+  <span class="page-num">27 / 35</span>
+</div>
+
+<!-- ==================== Slide 28: Skills構築テクニック ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">いいSkillの作り方</h2>
+    <p class="section-subtitle">情報を3層に分けてトークン節約。descriptionが最重要</p>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">層</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">何を置く</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">いつ読み込まれる</td>
+      </tr>
+      <tr>
+        <td>第1層: YAML</td>
+        <td>「いつ使うか」の最小情報</td>
+        <td>常時（毎セッション）</td>
+      </tr>
+      <tr>
+        <td>第2層: SKILL.md本文</td>
+        <td>本体の指示</td>
+        <td>Skillが発動したとき</td>
+      </tr>
+      <tr>
+        <td>第3層: references/</td>
+        <td>詳細ドキュメント</td>
+        <td>必要時のみ</td>
+      </tr>
+    </table>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+      <div class="terminal-box" style="margin-bottom:0;">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="title" style="color:#28c840;">GOOD - 良い description</span>
+        </div>
+        <div class="terminal-body" style="font-size:13px; line-height:1.7;">
+          <span class="output">description: インフルエンサーを</span><br>
+          <span class="output">&nbsp;&nbsp;ジャンル・フォロワー数で検索する。</span><br>
+          <span class="output">&nbsp;&nbsp;「インフルエンサー検索」</span><br>
+          <span class="output">&nbsp;&nbsp;「候補を探して」と言われたときに使用。</span>
+        </div>
+      </div>
+      <div class="terminal-box" style="margin-bottom:0;">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="title" style="color:#ff5f57;">BAD - 悪い description</span>
+        </div>
+        <div class="terminal-body" style="font-size:13px; line-height:1.7;">
+          <span class="output">description: データを検索します。</span><br><br>
+          <span style="color:#ff5f57;">&#x2192; 曖昧すぎて自動発動しない</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box" style="margin-top:20px;">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>Skillが自動で発動するかどうかは <code>description</code> で決まります。<strong>「何をするか」「いつ使うか」「主要な機能」</strong>の3要素を含めてください。</p>
+    </div>
+  </div>
+  <span class="page-num">28 / 35</span>
+</div>
+
+<!-- ==================== Slide 29: Skills vs Hooks vs Rules vs Loop ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">Skills vs Hooks vs Rules vs Loop</h2>
+    <p class="section-subtitle">Claude Codeを自動化する4つの仕組み</p>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:13px;">仕組み</td>
+        <td style="font-size:13px; font-weight:700; color:#8899aa;">いつ動く</td>
+        <td style="font-size:13px; font-weight:700; color:#8899aa;">何をする</td>
+        <td style="font-size:13px; font-weight:700; color:#8899aa;">例え</td>
+      </tr>
+      <tr>
+        <td style="color:#58a6ff;">Skills</td>
+        <td>/コマンド名 で呼ぶ or 自動検出</td>
+        <td>よく使う指示セットを実行</td>
+        <td>レシピ本</td>
+      </tr>
+      <tr>
+        <td style="color:#febc2e;">Hooks</td>
+        <td>ツール実行の前後に自動発動</td>
+        <td>安全チェック・自動フォーマット</td>
+        <td>火災報知器</td>
+      </tr>
+      <tr>
+        <td style="color:#28c840;">Rules</td>
+        <td>セッション開始時に自動読み込み</td>
+        <td>Claude Codeの判断基準を設定</td>
+        <td>社内ルールブック</td>
+      </tr>
+      <tr>
+        <td style="color:#d3a162;">Loop</td>
+        <td>定期間隔で繰り返し実行</td>
+        <td>定期チェック・監視タスク</td>
+        <td>定時パトロール</td>
+      </tr>
+    </table>
+
+    <div class="slide-divider" style="margin:16px auto;"></div>
+
+    <table class="login-table">
+      <tr>
+        <td style="font-size:14px;">使い分け</td>
+        <td style="font-size:14px; font-weight:700; color:#8899aa;">判断基準</td>
+      </tr>
+      <tr>
+        <td>毎回同じ操作をしている</td>
+        <td style="color:#58a6ff; font-weight:700;">&#x2192; Skills にまとめる</td>
+      </tr>
+      <tr>
+        <td>操作の前後で必ずチェックしたい</td>
+        <td style="color:#febc2e; font-weight:700;">&#x2192; Hooks で自動化する</td>
+      </tr>
+      <tr>
+        <td>Claude Codeの振る舞いを全体的に変えたい</td>
+        <td style="color:#28c840; font-weight:700;">&#x2192; Rules に書く</td>
+      </tr>
+      <tr>
+        <td>定期的に繰り返したい</td>
+        <td style="color:#d3a162; font-weight:700;">&#x2192; Loop で自動実行する</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>Step 3 の deny リストは Hooks の一種。<code>~/.claude/rules/</code> に置いた development.md や security.md は Rules です。</p>
+    </div>
+  </div>
+  <span class="page-num">29 / 35</span>
+</div>
+
+<!-- ==================== Slide 30: カスタマイズ全体像フローチャート ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">カスタマイズ手段の全体像</h2>
+    <p class="section-subtitle">「何をしたい？」から最適な手段を選ぶ</p>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">フローチャート</span>
+      </div>
+      <div class="terminal-body" style="font-size:14px; line-height:2;">
+        <span class="output">何をしたい？</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; よく使う指示を呼び出したい</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2192; Skills</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; 操作の前後で自動チェック</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2192; Hooks</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; Claude Codeの判断基準を設定</span><span class="comment">&nbsp;&nbsp;&#x2192; Rules</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; 定期的に繰り返し実行</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2192; Loop</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; 複雑なタスクを分担させたい</span><span class="comment">&nbsp;&nbsp;&nbsp;&#x2192; サブエージェント</span><br>
+        <span class="command">&nbsp;&nbsp;&#x251C;&#x2500; 外部サービスと連携したい</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2192; API or MCP</span><br>
+        <span class="command">&nbsp;&nbsp;&#x2514;&#x2500; 出力のスタイルを変えたい</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2192; 出力スタイル</span>
+      </div>
+    </div>
+
+    <div class="success-box">
+      <span class="success-icon">&#x2705;</span>
+      <p>実際の運用プロジェクトには<strong>9個のSkills</strong>があります。使い続ける中で <code>/insights</code> の提案に従って増やしていった結果です。</p>
+    </div>
+  </div>
+  <span class="page-num">30 / 35</span>
+</div>
+
+<!-- ==================== Slide 31: 今日やったことの全体像 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">11</div>
+      <div>
+        <h2>完成！ 振り返ろう</h2>
+        <p class="step-desc">今日やったことの全体像</p>
+      </div>
+    </div>
+
+    <div class="flow-diagram" style="flex-wrap:wrap; gap:12px;">
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F4C1;</span>
+        <div class="label" style="font-size:12px;">1. ディレクトリ作成</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F4DD;</span>
+        <div class="label" style="font-size:12px;">2. CLAUDE.md作成</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F6E1;&#xFE0F;</span>
+        <div class="label" style="font-size:12px;">3. 安全設定</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F4CB;</span>
+        <div class="label" style="font-size:12px;">4. Plan Mode設計</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F504;</span>
+        <div class="label" style="font-size:12px;">5. /clear</div>
+      </div>
+    </div>
+    <div class="flow-diagram" style="flex-wrap:wrap; gap:12px; margin-top:0;">
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F528;</span>
+        <div class="label" style="font-size:12px;">6. 実装</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x2705;</span>
+        <div class="label" style="font-size:12px;">7. 検証</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F4BE;</span>
+        <div class="label" style="font-size:12px;">8. Gitコミット</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F310;</span>
+        <div class="label" style="font-size:12px;">9. サーバー起動</div>
+      </div>
+      <div class="flow-arrow" style="font-size:20px;">&#x2192;</div>
+      <div class="flow-item" style="min-width:120px; padding:14px 16px;">
+        <span class="icon" style="font-size:28px;">&#x1F4CA;</span>
+        <div class="label" style="font-size:12px;">10. /insights</div>
+      </div>
+    </div>
+
+    <div class="success-box" style="margin-top:20px;">
+      <span class="success-icon">&#x1F389;</span>
+      <p><strong>要件書 &#x2192; 設計 &#x2192; 実装 &#x2192; 動作確認 &#x2192; Git記録 &#x2192; 改善</strong> の一連の開発フローを、Claude Codeと一緒に体験しました。</p>
+    </div>
+  </div>
+  <span class="page-num">31 / 35</span>
+</div>
+
+<!-- ==================== Slide 32: グローバル設定 + リモートコントロール ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <div class="step-header">
+      <div class="step-number">12</div>
+      <div>
+        <h2>ここから先の世界</h2>
+        <p class="step-desc">グローバル設定とリモートコントロール</p>
+      </div>
+    </div>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="title">グローバル設定（全プロジェクト共通）</span>
+      </div>
+      <div class="terminal-body" style="font-size:13px; line-height:1.8;">
+        <span class="output">~/.claude/</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; 全プロジェクト共通</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; settings.json</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; 全プロジェクトの安全ルール</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; rules/</span><br>
+        <span class="output">&#x2502;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500; development.md</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; 開発の進め方（PSB）</span><br>
+        <span class="output">&#x2502;&nbsp;&nbsp;&nbsp;&#x2514;&#x2500;&#x2500; security.md</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; セキュリティルール</span><br>
+        <span class="output">&#x251C;&#x2500;&#x2500; skills/</span><br>
+        <span class="output">&#x2502;&nbsp;&nbsp;&nbsp;&#x251C;&#x2500;&#x2500; plan-first/</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; 「まず設計」を強制</span><br>
+        <span class="output">&#x2502;&nbsp;&nbsp;&nbsp;&#x2514;&#x2500;&#x2500; verify-before-done/</span><span class="comment"> &#x2190; 「完了前に確認」を強制</span><br>
+        <span class="output">&#x2514;&#x2500;&#x2500; sessions/</span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2190; 過去の会話履歴</span>
+      </div>
+    </div>
+
+    <div class="comparison-box">
+      <div class="comparison-item">
+        <span class="icon">&#x1F4F1;</span>
+        <div class="name">スマホ (Discord)</div>
+        <div class="label">指示を出す</div>
+      </div>
+      <div class="arrow">&#x2194;&#xFE0F;</div>
+      <div class="comparison-item">
+        <span class="icon">&#x1F4BB;</span>
+        <div class="name">Claude Code (PC常駐)</div>
+        <div class="label">実行する</div>
+      </div>
+      <div class="arrow">&#x2194;&#xFE0F;</div>
+      <div class="comparison-item">
+        <span class="icon">&#x1F310;</span>
+        <div class="name">各種サービス</div>
+        <div class="label">スプシ / Chatwork / Gmail</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">&#x1F4A1;</span>
+      <p>毎朝6:00に「今日やるべきこと」がDiscordに届く。スマホから「あれやっとけ」&#x2192; Claude Codeが実行 &#x2192; 結果がDiscordに返る。<strong>これが今日学んだ技術の先にある世界</strong>です。</p>
+    </div>
+  </div>
+  <span class="page-num">32 / 35</span>
+</div>
+
+<!-- ==================== Slide 33: 失敗パターンTOP3 ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">やりがちな失敗TOP3</h2>
+    <p class="section-subtitle">今日の作業の中で、実はすべて対策済みです</p>
+
+    <div class="trouble-list">
+      <div class="trouble-item">
+        <span class="trouble-icon">&#x1F6A8;</span>
+        <div>
+          <div class="symptom">1つのセッションで全部やろうとする</div>
+          <div class="fix"><strong>何が起きる：</strong>Claude Codeが混乱して精度が落ちる<br><strong>今日の対策：</strong>各ステップで <code>/clear</code> した</div>
+        </div>
+      </div>
+      <div class="trouble-item">
+        <span class="trouble-icon">&#x1F504;</span>
+        <div>
+          <div class="symptom">同じ間違いを何度も直させる</div>
+          <div class="fix"><strong>何が起きる：</strong>コンテキストが汚れてさらに悪化<br><strong>今日の対策：</strong>2回失敗したら <code>/clear</code> &#x2192; やり直し</div>
+        </div>
+      </div>
+      <div class="trouble-item">
+        <span class="trouble-icon">&#x1F4DA;</span>
+        <div>
+          <div class="symptom">CLAUDE.mdに何でも書く</div>
+          <div class="fix"><strong>何が起きる：</strong>指示が多すぎて全部無視される<br><strong>今日の対策：</strong>50行以内で作成した</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <p>これらの失敗はClaude Code初心者のほぼ全員が通る道です。<strong>意識するだけで劇的に改善します。</strong></p>
+    </div>
+  </div>
+  <span class="page-num">33 / 35</span>
+</div>
+
+<!-- ==================== Slide 34: 明日から使える3つ ==================== -->
+<div class="slide slide-step">
+  <div class="content">
+    <h2 class="section-title">明日から使える3つ</h2>
+    <p class="section-subtitle">今日学んだことの中で、特にこれだけは覚えて帰ってください</p>
+
+    <div class="what-grid" style="grid-template-columns:1fr 1fr 1fr; gap:20px;">
+      <div class="what-card" style="border-color:rgba(211,161,98,0.3);">
+        <span class="icon" style="font-size:56px;">1</span>
+        <h3>/clear を習慣にする</h3>
+        <p>話題が変わったら即リセット。今日の作業でも毎ステップでやりました。<strong>これが一番大事。</strong></p>
+      </div>
+      <div class="what-card" style="border-color:rgba(211,161,98,0.3);">
+        <span class="icon" style="font-size:56px;">2</span>
+        <h3>まず /plan で設計</h3>
+        <p>いきなり「作って」と言わない。<code>/plan</code> で調査・設計してから実装する。</p>
+      </div>
+      <div class="what-card" style="border-color:rgba(211,161,98,0.3);">
+        <span class="icon" style="font-size:56px;">3</span>
+        <h3>@ファイル名 で資料を渡す</h3>
+        <p>Claude Codeの真価は手元のファイルを直接渡して分析・加工できること。<code>@売上データ.csv を分析して</code></p>
+      </div>
+    </div>
+
+    <div class="success-box" style="margin-top:30px;">
+      <span class="success-icon">&#x2705;</span>
+      <p>この3つだけで、明日から業務でClaude Codeを使い始められます。小さいタスクから始めて、慣れたら範囲を広げていきましょう。</p>
+    </div>
+  </div>
+  <span class="page-num">34 / 35</span>
+</div>
+
+<!-- ==================== Slide 35: ありがとうございました ==================== -->
+<div class="slide slide-title">
+  <div class="logo">C_</div>
+  <h1>ありがとうございました</h1>
+  <p class="subtitle">インフルエンサー図鑑をClaude Codeで作ろう</p>
+  <div class="slide-divider" style="margin:20px auto;"></div>
+  <p style="font-size:18px; color:#8899aa; margin-top:10px; text-align:center; line-height:2;">
+    要件書 &#x2192; 設計 &#x2192; 実装 &#x2192; 動作確認 &#x2192; Git記録 &#x2192; 改善<br>
+    この流れを、これからも繰り返していきましょう
+  </p>
+  <div class="badge" style="margin-top:30px;">質問があればいつでもどうぞ</div>
+  <span class="page-num">35 / 35</span>
+</div>
+
+</body>
+</html>
