@@ -63,10 +63,50 @@ cat reference/settings-example.json
 `reference/CC開発チートシート.md` に開発の要点がまとまっています。
 PSBフレームワーク、コンテキスト管理、CLAUDE.mdの書き方、サブエージェントの使い方など。
 
-## 参照元
+## 参照元リンク集
 
-- [公式ベストプラクティス](https://code.claude.com/docs/ja/best-practices)
-- [17 Best Claude Code Workflows](https://medium.com/@joe.njenga/17-best-claude-code-workflows-that-separate-amateurs-from-pros-instantly-level-up-5075680d4c49)
-- [カンリー社内Claude Code勉強会資料](https://zenn.dev/canly/articles/cc0891517e45cc)
-- [Claude Codeですべての日常業務を爆速化しよう！](https://qiita.com/minorun365/items/114f53def8cb0db60f47)
-- [Claude Code Insights](https://zenn.dev/ischca/articles/cc-guide-insights)
+### 公式ドキュメント
+- [Claude Code ベストプラクティス（公式・日本語）](https://code.claude.com/docs/ja/best-practices)
+- [Claude Code CHANGELOG](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+
+### ベストプラクティス・ワークフロー
+- [17 Best Claude Code Workflows That Separate Amateurs from Pros](https://medium.com/@joe.njenga/17-best-claude-code-workflows-that-separate-amateurs-from-pros-instantly-level-up-5075680d4c49) -- Joe Njenga
+- [The Shorthand Guide to Everything Claude Code](https://x.com/affaanmustafa/status/2012378465664745795) -- @affaanmustafa
+- [The Complete Claude Code Tutorial](https://x.com/eyad_khrais/status/2010076957938188661) -- @eyad_khrais
+- [Claude needs 4 things at all times](https://x.com/BharukaShraddha/status/2029836408232497678) -- @BharukaShraddha
+- [とてつもなくシンプルなClaude Code開発者によるCCの使い方](https://x.com/shinojapan/status/2007254196077375970) -- @shinojapan
+
+### 非エンジニア向け・業務活用
+- [Claude Codeですべての日常業務を爆速化しよう！](https://qiita.com/minorun365/items/114f53def8cb0db60f47) -- minorun365
+- [Claude Codeで異次元の仕事をする方法（非エンジニアにも全力推奨）](https://note.com/sunazuka/n/n258295d054ca) -- 砂塚紀彦
+- [PM向けClaude Codeコース](https://github.com/carlvellotti/claude-code-pm-course) -- carlvellotti
+- [Claude Code 超完全ガイド（エンジニアから投資家まで）](https://note.com/fabymetal/n/n3f0f2873b56c) -- FabyΔ
+- [Claude Codeとは？導入・使い方・安全運用ガイド](https://ensou.app/blog/claude-code-business-guide/) -- AIエージェント活用ノウハウ
+
+### 勉強会資料
+- [カンリー社内Claude Code勉強会の資料を公開します](https://zenn.dev/canly/articles/cc0891517e45cc) -- カンリー
+
+### セキュリティ
+- [Claude Codeを使うなら、この「7つのセキュリティ設定」は最低限見ておいて欲しい](https://x.com/SuguruKun_ai/status/2035657076371075514) -- @SuguruKun_ai
+
+### 拡張機能・Skills・Hooks
+- [Claude Code Insights](https://zenn.dev/ischca/articles/cc-guide-insights) -- ischca
+- [Claude CodeのHooksをハックして自律駆動するマルチエージェントを作った](https://zenn.dev/zaico/articles/d6b882c78fe4b3) -- zaico
+- [8年のプロダクトデザイン経験をClaude Skillに凝縮した](https://www.reddit.com/r/ClaudeAI/comments/1q4l76k/i_condensed_8_years_of_product_design_experience/) -- Reddit
+- [承認疲れをAIで解決 (ccmanager)](https://github.com/kbwo/ccmanager) -- kbwo
+
+### Agent Teams・並列開発
+- [Agent Teamを導入したら圧倒的に質が変わった](https://x.com/shinojapan/status/2019620314867724681) -- @shinojapan
+- [ClaudeCodeのAgent Teamsを体験できる手順書](https://note.com/suh_sunaneko/n/nfe794eac6a23) -- すぅ
+
+### Discord連携
+- [Claude Code Discord Bridge](https://github.com/ebibibi/claude-code-discord-bridge) -- ebibibi
+
+### キャリア・戦略
+- [Claude Code時代のソフトウェアエンジニア生存戦略](https://note.com/suthio/n/n4f79fbe4efda) -- suthio
+
+### Xスレッド（Tips集）
+- [@bcherny: 許可プロンプトでのTab操作](https://x.com/bcherny/status/2009450715081789767)
+- [@mert: Claude Code Tips](https://x.com/mert/status/2009986072953126935)
+- [@0x__tom: Claude Code活用法](https://x.com/0x__tom/status/2018232922747339182)
+- [@trq212: Claude Code実践](https://x.com/trq212/status/2011523109871108570)
